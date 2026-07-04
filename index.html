@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portafolio · Bases de Datos</title>
+<meta name="description" content="Portafolio académico de la materia Bases de Datos">
+
+<!-- Tipografías: Space Grotesk (display) + Inter (texto) + JetBrains Mono (datos/código) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================
+   TOKENS DE DISEÑO
+   Paleta: fondo casi-negro azulado + acentos
+   índigo/violeta tipo "tech" + verde terminal
+   para detalles de datos/código.
+   ============================================ */
+:root{
+  --bg:            #0a0e1a;
+  --bg-alt:        #0d1224;
+  --surface:       #11172c;
+  --surface-2:     #161d38;
+  --border:        #232b4a;
+
+  --text:          #e7e9f5;
+  --text-dim:      #9aa1c4;
+  --text-faint:    #5d6490;
+
+  --accent:        #7c8cff;   /* índigo */
+  --accent-2:      #b07cff;   /* violeta */
+  --accent-soft:   rgba(124,140,255,0.12);
+  --data-green:    #7cffb0;   /* verde "terminal" para datos */
+
+  --font-display:  'Space Grotesk', sans-serif;
+  --font-body:     'Inter', sans-serif;
+  --font-mono:     'JetBrains Mono', monospace;
+
+  --radius:        14px;
+  --radius-sm:     8px;
+  --max-w:         1180px;
+
+  --shadow-glow:   0 0 0 1px var(--border), 0 20px 60px -20px rgba(124,140,255,0.25);
+}
+
+/* ============ RESET ============ */
+*,*::before,*::after{ box-sizing: border-box; }
+html{ scroll-behavior: smooth; }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+img{ max-width:100%; display:block; }
+a{ color: inherit; text-decoration: none; }
+ul{ list-style:none; margin:0; padding:0; }
+h1,h2,h3,h4{ font-family: var(--font-display); margin:0; line-height:1.15; }
+p{ margin:0; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior:auto !important; }
+}
+
+:focus-visible{
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.container{
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 28px;
+}
+.container-narrow{ max-width: 760px; }
+
+.accent{
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ============ NAVBAR ============ */
+.navbar{
+  position: fixed;
+  top:0; left:0; right:0;
+  z-index: 100;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 16px 28px;
+  background: rgba(10,14,26,0.75);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand{
+  display:flex; align-items:center; gap:10px;
+  font-family: var(--font-display);
+  font-weight:600;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+}
+.nav-brand-icon{
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+.nav-links{
+  display:flex;
+  gap: 4px;
+}
+.nav-link{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding: 8px 14px;
+  font-size: 0.88rem;
+  font-weight:500;
+  color: var(--text-dim);
+  border-radius: 999px;
+  transition: color .2s ease, background .2s ease;
+}
+.nav-num{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-faint);
+}
+.nav-link:hover{ color: var(--text); background: var(--surface-2); }
+.nav-link.active{ color: var(--text); background: var(--accent-soft); }
+.nav-link.active .nav-num{ color: var(--accent); }
+
+.nav-toggle{
+  display:none;
+  flex-direction:column;
+  justify-content:center;
+  gap:5px;
+  width: 38px; height: 38px;
+  background:none; border:none; cursor:pointer;
+}
+.nav-toggle span{
+  display:block; height:2px; width:100%;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform .25s ease, opacity .25s ease;
+}
+
+.scroll-progress{
+  position: fixed;
+  top:0; left:0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  z-index: 101;
+  transition: width .1s linear;
+}
+
+/* ============ SECCIONES BASE ============ */
+.section{
+  padding: 120px 0 100px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+.section-alt{ background: var(--bg-alt); }
+.section-contact{ border-bottom:none; }
+
+.section-eyebrow{
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--accent);
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+.section-title{
+  font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+  font-weight: 600;
+  margin-bottom: 18px;
+  letter-spacing: -0.02em;
+}
+.section-lead{
+  max-width: 640px;
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  margin-bottom: 48px;
+}
+
+/* ============ 1. HERO ============ */
+.hero{
+  min-height: 100vh;
+  display:flex;
+  align-items:center;
+  padding-top: 110px;
+  border-bottom: 1px solid var(--border);
+  overflow:hidden;
+}
+.hero-grid-bg{
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 30% 30%, black 10%, transparent 70%);
+  mask-image: radial-gradient(ellipse 70% 60% at 30% 30%, black 10%, transparent 70%);
+  opacity: 0.5;
+}
+.hero-content{
+  position: relative;
+  z-index: 2;
+  display:flex;
+  flex-direction:column;
+  gap: 22px;
+  max-width: 680px;
+}
+.eyebrow{
+  font-family: var(--font-mono);
+  color: var(--data-green);
+  font-size: 0.85rem;
+}
+.hero-title{
+  font-size: clamp(2.2rem, 5vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.hero-subtitle{
+  color: var(--text-dim);
+  font-size: 1.08rem;
+  max-width: 540px;
+}
+.hero-actions{
+  display:flex; gap: 14px; flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.btn{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  padding: 13px 24px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+  border: 1px solid transparent;
+  cursor:pointer;
+}
+.btn-primary{
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  color: #0a0e1a;
+}
+.btn-primary:hover{ transform: translateY(-2px); }
+.btn-ghost{
+  border-color: var(--border);
+  color: var(--text);
+  background: var(--surface);
+}
+.btn-ghost:hover{ border-color: var(--accent); transform: translateY(-2px); }
+
+.hero-panel{
+  position: absolute;
+  right: 6%;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 380px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-glow);
+  overflow:hidden;
+  z-index: 1;
+}
+.panel-bar{
+  display:flex; align-items:center; gap:8px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+}
+.dot{ width:9px; height:9px; border-radius:50%; }
+.dot-r{ background:#ff6b6b; } .dot-y{ background:#ffd166; } .dot-g{ background:#7cffb0; }
+.panel-title{
+  margin-left: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+.panel-code{
+  margin:0;
+  padding: 20px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  overflow-x:auto;
+}
+.panel-code .kw{ color: var(--accent-2); }
+.panel-code .str{ color: var(--data-green); }
+.panel-code .comment{ color: var(--text-faint); }
+
+@media (max-width: 1000px){
+  .hero-panel{ display:none; }
+}
+
+/* ============ 2. ACERCA DEL CURSO ============ */
+.grid-3{
+  display:grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 22px;
+}
+.card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px;
+  transition: border-color .2s ease, transform .2s ease;
+}
+.card:hover{ border-color: var(--accent); transform: translateY(-4px); }
+.card-icon{
+  display:inline-block;
+  color: var(--accent);
+  font-size: 1.4rem;
+  margin-bottom: 14px;
+}
+.card h3{ font-size: 1.1rem; margin-bottom: 10px; }
+.card p{ color: var(--text-dim); font-size: 0.95rem; }
+
+/* ============ 3. CONTENIDO / ACORDEÓN ============ */
+.accordion{
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.accordion-item{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow:hidden;
+}
+.accordion-header{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 16px;
+  padding: 20px 22px;
+  background:none;
+  border:none;
+  color: var(--text);
+  cursor:pointer;
+  text-align:left;
+  font-family: var(--font-body);
+}
+.accordion-unit-num{
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-size: 0.8rem;
+  margin-right: 14px;
+}
+.accordion-header-text{ flex:1; }
+.accordion-header-text h3{ font-size: 1.02rem; font-weight: 600; }
+.accordion-icon{
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  transition: transform .25s ease;
+  font-size: 1.1rem;
+}
+.accordion-item.open .accordion-icon{ transform: rotate(45deg); }
+
+.accordion-panel{
+  max-height: 0;
+  overflow:hidden;
+  transition: max-height .3s ease;
+  border-top: 1px solid transparent;
+}
+.accordion-item.open .accordion-panel{
+  border-top: 1px solid var(--border);
+}
+.accordion-panel-inner{
+  padding: 18px 22px 24px;
+  display:flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.accordion-panel-inner p{ color: var(--text-dim); font-size: 0.92rem; }
+.material-btn{
+  align-self:flex-start;
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight:600;
+  border: 1px solid var(--border);
+  transition: background .2s ease;
+}
+.material-btn:hover{ background: rgba(124,140,255,0.22); }
+
+/* ============ 4. ACTIVIDADES ============ */
+.filters{
+  display:flex;
+  flex-wrap:wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.filter-btn{
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-weight:600;
+  cursor:pointer;
+  transition: all .2s ease;
+  font-family: var(--font-mono);
+}
+.filter-btn:hover{ color: var(--text); border-color: var(--accent); }
+.filter-btn.active{
+  color: #0a0e1a;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  border-color: transparent;
+}
+
+.parcial-title{
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text);
+  margin: 36px 0 18px;
+}
+.parcial-title:first-of-type{ margin-top: 28px; }
+
+.activity-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 22px;
+}
+.activity-card{
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.activity-card:hover{ transform: translateY(-4px); border-color: var(--accent); }
+.activity-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.activity-tag{
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent-2);
+  background: rgba(176,124,255,0.12);
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.activity-date{
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-faint);
+}
+.activity-card h3{ font-size: 1.05rem; }
+.activity-card p{ color: var(--text-dim); font-size: 0.9rem; flex:1; }
+.activity-link{
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--data-green);
+  margin-top: 4px;
+}
+.activity-link::after{ content:"→"; transition: transform .2s ease; }
+.activity-link:hover::after{ transform: translateX(4px); }
+
+.loading-msg{
+  font-family: var(--font-mono);
+  color: var(--text-faint);
+  font-size: 0.9rem;
+}
+.blink{ animation: blink 1s steps(2, start) infinite; }
+@keyframes blink{ to{ visibility: hidden; } }
+
+/* ============ 5. CONCLUSIÓN ============ */
+.conclusion-text{
+  color: var(--text-dim);
+  font-size: 1.05rem;
+  margin-bottom: 22px;
+}
+.pull-quote{
+  margin: 36px 0 0;
+  padding: 24px 28px;
+  border-left: 3px solid var(--accent);
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--text);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+/* ============ 6. CONTACTO ============ */
+.contact-links{
+  display:flex;
+  flex-direction:column;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow:hidden;
+}
+.contact-link{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding: 20px 26px;
+  border-bottom: 1px solid var(--border);
+  transition: background .2s ease;
+}
+.contact-link:last-child{ border-bottom:none; }
+.contact-link:hover{ background: var(--surface); }
+.contact-label{
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  text-transform: uppercase;
+}
+.contact-value{ font-weight:600; }
+
+/* ============ FOOTER ============ */
+.footer{
+  padding: 32px 0 40px;
+  background: var(--bg-alt);
+}
+.footer-content{
+  display:flex;
+  justify-content:space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--text-faint);
+  font-size: 0.85rem;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 880px){
+  .grid-3{ grid-template-columns: 1fr; }
+}
+
+@media (max-width: 760px){
+  .nav-toggle{ display:flex; }
+  .nav-links{
+    position: fixed;
+    top: 68px; right: 0;
+    flex-direction: column;
+    width: 78%;
+    max-width: 320px;
+    height: calc(100vh - 68px);
+    background: var(--bg-alt);
+    border-left: 1px solid var(--border);
+    padding: 24px;
+    gap: 6px;
+    transform: translateX(100%);
+    transition: transform .3s ease;
+  }
+  .nav-links.open{ transform: translateX(0); }
+  .nav-link{ width:100%; padding: 14px; border-radius: var(--radius-sm); }
+
+  .hero{ text-align:left; }
+  .section{ padding: 90px 0 70px; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- ============ NAVEGACIÓN ============ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-brand">
+    <span class="nav-brand-icon">▮▯</span>
+    <span class="nav-brand-text">portafolio<span class="accent">.bd</span></span>
+  </div>
+
+  <button class="nav-toggle" id="navToggle" aria-label="Abrir menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#inicio" class="nav-link active" data-section="inicio"><span class="nav-num">01</span>Inicio</a></li>
+    <li><a href="#quien-soy" class="nav-link" data-section="quien-soy"><span class="nav-num">02</span>Quién soy</a></li>
+    <li><a href="#curso" class="nav-link" data-section="curso"><span class="nav-num">03</span>Acerca del curso</a></li>
+    <li><a href="#contenido" class="nav-link" data-section="contenido"><span class="nav-num">04</span>Contenido</a></li>
+    <li><a href="#actividades" class="nav-link" data-section="actividades"><span class="nav-num">05</span>Actividades</a></li>
+    <li><a href="#conclusion" class="nav-link" data-section="conclusion"><span class="nav-num">06</span>Conclusión</a></li>
+  </ul>
+</nav>
+
+<!-- Indicador de progreso de scroll -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<main>
+
+  <!-- ============ 1. INICIO ============ -->
+  <section id="inicio" class="section hero">
+    <div class="hero-grid-bg" aria-hidden="true"></div>
+    <div class="container hero-content">
+      <p class="eyebrow">SELECT * FROM portafolio;</p>
+      <h1 class="hero-title">
+        Hola, soy <span class="accent">Johnny Rivas</span><br>
+        construyo orden a partir<br>de los datos.
+      </h1>
+      <p class="hero-subtitle">
+        Estudiante de la <strong>Licenciatura en Ciberseguridad</strong> —
+        este es mi portafolio para la materia de <strong>Bases de Datos</strong>,
+        donde documento lo aprendido, mis prácticas y proyectos del curso.
+      </p>
+      <div class="hero-actions">
+        <a href="#contenido" class="btn btn-primary">Ver contenido del curso</a>
+        <a href="#actividades" class="btn btn-ghost">Ver actividades</a>
+      </div>
+    </div>
+
+    <!-- Panel decorativo tipo "tabla / consola" -->
+    <div class="hero-panel" aria-hidden="true">
+      <div class="panel-bar">
+        <span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span>
+        <span class="panel-title">consulta.sql</span>
+      </div>
+      <pre class="panel-code"><code><span class="kw">SELECT</span> nombre, carrera, semestre
+<span class="kw">FROM</span> estudiantes
+<span class="kw">WHERE</span> nombre = <span class="str">'Johnny Rivas'</span>
+<span class="kw">AND</span> carrera = <span class="str">'Ciberseguridad'</span>;
+
+<span class="comment">-- 1 row affected</span></code></pre>
+    </div>
+  </section>
+
+  <!-- ============ 2. QUIÉN SOY ============ -->
+  <section id="quien-soy" class="section section-alt">
+    <div class="container container-narrow">
+      <p class="section-eyebrow">02 / Quién soy</p>
+      <h2 class="section-title">Sobre mí</h2>
+      <p class="section-lead">
+        Mi nombre es <strong>Johnny José Rivas Moreno</strong>, vivo en
+        <strong>Villa Karola, Penonomé</strong>, y actualmente estoy cursando la
+        carrera de <strong>Ciberseguridad</strong>.
+      </p>
+      <p class="conclusion-text">
+        Me gusta el fútbol y, últimamente, también el voleybol. En mis tiempos
+        libres disfruto salir con mis amigos y escuchar música, especialmente a
+        Shakira.
+      </p>
+      <p class="conclusion-text">
+        Entender a fondo las bases de datos es clave para mi formación, ya que gran
+        parte de los incidentes de seguridad están relacionados con el almacenamiento
+        y manejo inadecuado de la información.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 2. ACERCA DEL CURSO ============ -->
+  <section id="curso" class="section">
+    <div class="container">
+      <p class="section-eyebrow">03 / Acerca del curso</p>
+      <h2 class="section-title">¿De qué trata esta materia?</h2>
+      <p class="section-lead">
+        Bases de Datos es la materia donde aprendemos a diseñar, modelar y administrar
+        sistemas que almacenan y dan sentido a la información: el corazón de cualquier
+        aplicación real.
+      </p>
+
+      <div class="grid-3">
+        <article class="card">
+          <span class="card-icon">◇</span>
+          <h3>Propósito</h3>
+          <p>Comprender los fundamentos del modelado relacional, el diseño de esquemas
+          normalizados y el uso de SQL para crear, consultar y mantener bases de datos
+          confiables y eficientes.</p>
+        </article>
+
+        <article class="card">
+          <span class="card-icon">◆</span>
+          <h3>Competencias</h3>
+          <p>Modelado entidad-relación, normalización, escritura de consultas SQL
+          (DDL/DML), diseño de índices, integridad referencial y buenas prácticas
+          de administración de datos.</p>
+        </article>
+
+        <article class="card">
+          <span class="card-icon">◈</span>
+          <h3>Expectativas</h3>
+          <p>Con el curso de Base de Datos Seguras espero aumentar mis
+          conocimientos en el campo de la protección y administración segura
+          de la información, y reforzar los que ya tengo en el manejo de
+          bases de datos.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 3. CONTENIDO ============ -->
+  <section id="contenido" class="section section-alt">
+    <div class="container">
+      <p class="section-eyebrow">04 / Contenido</p>
+      <h2 class="section-title">Temario del curso</h2>
+      <p class="section-lead">
+        Unidades trabajadas durante el semestre. Cada una incluye su material teórico
+        de soporte, disponible para descarga.
+      </p>
+
+      <!-- Acordeón generado dinámicamente vía JS (simulación de consulta a BD) -->
+      <div id="accordion" class="accordion">
+        <p class="loading-msg">Consultando unidades... <span class="blink">▍</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. ACTIVIDADES ============ -->
+  <section id="actividades" class="section">
+    <div class="container">
+      <p class="section-eyebrow">05 / Actividades</p>
+      <h2 class="section-title">Tareas y parciales</h2>
+      <p class="section-lead">
+        Actividades desarrolladas a lo largo del curso, organizadas por parcial.
+        Cada tarjeta enlaza al archivo correspondiente.
+      </p>
+
+      <!-- Filtro simple por tipo de actividad -->
+      <div class="filters" id="filters"></div>
+
+      <div id="activityGridP1" class="activity-grid">
+        <p class="loading-msg">Cargando actividades desde la base de datos... <span class="blink">▍</span></p>
+      </div>
+
+      <div id="activityGridP2" class="activity-grid">
+        <p class="loading-msg">Cargando actividades desde la base de datos... <span class="blink">▍</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 5. CONCLUSIÓN ============ -->
+  <section id="conclusion" class="section section-alt section-contact">
+    <div class="container container-narrow">
+      <p class="section-eyebrow">06 / Conclusión</p>
+      <h2 class="section-title">Reflexión final</h2>
+      <p class="conclusion-text">
+        Cursar Bases de Datos cambió la forma en que pienso los proyectos: ya no veo
+        la información como simples campos sueltos, sino como un sistema que debe
+        diseñarse con intención, integridad y escalabilidad. Aprender a modelar
+        entidades, normalizar tablas y escribir consultas SQL me dio una base sólida
+        que sé que voy a usar en cada aplicación que construya de aquí en adelante.
+      </p>
+      <p class="conclusion-text">
+        Más allá de la sintaxis, esta materia me enseñó a pensar de forma estructurada
+        sobre problemas reales: cómo organizar datos para que sean confiables, rápidos
+        de consultar y fáciles de mantener. Es una habilidad que se traslada directamente
+        al desarrollo web, al análisis de datos y a cualquier rol donde la información
+        sea el activo principal.
+      </p>
+
+      <blockquote class="pull-quote">
+        "Una buena base de datos es invisible cuando funciona y crítica cuando falla."
+      </blockquote>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="container footer-content">
+    <p>Portafolio académico — Materia de Bases de Datos · <span id="year"></span></p>
+    <p class="footer-sub">Hecho con HTML, CSS y JavaScript.</p>
+  </div>
+</footer>
+
+<script>
+/* ==========================================================
+   data.js
+   --------------------------------------------------------
+   Simulación de una "consulta a base de datos" usando
+   arrays de objetos en JavaScript. En un proyecto real,
+   estos datos vendrían de un fetch() a una API/backend
+   conectado a una base de datos real.
+   ========================================================== */
+
+/* ---------- Unidades / Temario (sección Contenido) ---------- */
+const UNIDADES_DB = [
+  {
+    id: 1,
+    semana: "Semana 1",
+    titulo: "Fundamentos de Base de Datos",
+    descripcion:
+      "Conceptos básicos sobre qué es una base de datos, su importancia y los " +
+      "elementos fundamentales que la componen.",
+    material: "https://gamma.app/docs/Fundamentos-de-Base-de-Datos-ofwn5u01b1ithlf?mode=doc"
+  },
+  {
+    id: 2,
+    semana: "Semana 2",
+    titulo: "Importancia de las Bases de Datos",
+    descripcion:
+      "Relevancia de las bases de datos en las organizaciones y en el desarrollo " +
+      "de sistemas de información.",
+    material: "https://gamma.app/docs/Importancia-de-las-Bases-de-Datos-rzqw24u2w8h1rp3?mode=doc"
+  },
+  {
+    id: 3,
+    semana: "Semana 3",
+    titulo: "Modelo Entidad y Relación",
+    descripcion:
+      "Diseño conceptual de bases de datos: entidades, atributos, relaciones " +
+      "y construcción de diagramas E-R.",
+    material: "https://gamma.app/docs/Modelo-Entidad-Relacion-eis7bcuwvcua11d?mode=doc"
+  },
+  {
+    id: 4,
+    semana: "Semana 4",
+    titulo: "Proceso de Normalización",
+    descripcion:
+      "Normalización de tablas para eliminar redundancia y garantizar la " +
+      "integridad de los datos.",
+    material: "https://gamma.app/docs/Proceso-de-Normalizacion-del-Esquema-Relacional-l4vwiaytaz8ot6g?mode=doc"
+  },
+  {
+    id: 5,
+    semana: "Semana 7",
+    titulo: "Seguridad en Base de Datos",
+    descripcion:
+      "Principios y mecanismos de seguridad aplicados a la protección de la " +
+      "información almacenada en una base de datos.",
+    material: "Contenido/bd-6s3121-seguridad-mysql-presentacion.pdf"
+  },
+  {
+    id: 6,
+    semana: "Semana 8",
+    titulo: "Auditoría de Base de Datos",
+    descripcion:
+      "Procesos de auditoría para el monitoreo, control y trazabilidad de " +
+      "las operaciones realizadas sobre la base de datos.",
+    material: "Contenido/bd-6s3121-auditoria-bd-presentacion.pdf"
+  },
+  {
+    id: 7,
+    semana: "Semana 13",
+    titulo: "Cloud Services y BD en la Nube",
+    descripcion:
+      "Servicios en la nube aplicados al almacenamiento y administración de " +
+      "bases de datos.",
+    material: "Contenido/bd-6s3121-cloud-services-y-bd-en-la-nube.pdf"
+  },
+  {
+    id: 8,
+    semana: "Semana 14",
+    titulo: "MongoDB Avanzado - Objetos y Seguridad",
+    descripcion:
+      "Manejo avanzado de MongoDB: estructura de objetos, documentos y " +
+      "aspectos de seguridad en bases de datos no relacionales.",
+    material: "Contenido/bd-6s3121-clase-mongodb-avanzado-utp.pdf"
+  },
+  {
+    id: 9,
+    semana: "Semana 16",
+    titulo: "Asignación de proyecto Final",
+    descripcion:
+      "Asignación del proyecto final ",
+    material: "Contenido/proyecto-de-base-de-datos-segura.pdf"
+  },
+  {
+    id: 10,
+    semana: "Semana 16",
+    titulo: "Inyección SQL",
+    descripcion:
+      "Inyección SQL ",
+    material: "Contenido/bd-6s3121-base-de-datos-seguras-sql-injection.pdf"
+  }
+];
+
+/* ---------- Actividades (sección Actividades) ---------- */
+/* NOTA: placeholders generados — ajustar "titulo", "archivo" y el campo
+   "parcial" (1 o 2) de cada actividad según corresponda. */
+const ACTIVIDADES_DB = [
+ { id: 1, parcial: 1, tipo: "tarea", titulo: "Bases de Datos Seguras", archivo: "actividades/practica-1-bd-seguras-2026.pdf" },
+{ id: 2, parcial: 1, tipo: "tarea", titulo: "Modelo Relacional", archivo: "actividades/practica-2-modelo-relacional.pdf" },
+{ id: 3, parcial: 1, tipo: "tarea", titulo: "Normalización de Bases de Datos", archivo: "actividades/ejemplo-para-explicar-normalizacion.pdf" },
+{ id: 4, parcial: 1, tipo: "tarea", titulo: "Laboratorio de MySQL en Máquina Virtual", archivo: "actividades/clase-de-laboratorio-maquina-virtual-mysql.pdf" },
+{ id: 5, parcial: 1, tipo: "tarea", titulo: "Laboratorio HospitalDB", archivo: "actividades/laboratorio-hospitaldb-johnnyrivas.pdf" },
+{ id: 6, parcial: 1, tipo: "tarea", titulo: "Integración de MongoDB con Python", archivo: "actividades/integracion-mongodb-python.pdf" },
+{ id: 7, parcial: 1, tipo: "tarea", titulo: "Seguridad en Bases de Datos", archivo: "actividades/practica-7-johnny-rivas.pdf" },
+{ id: 8, parcial: 1, tipo: "tarea", titulo: "Práctica de Seguridad", archivo: "actividades/practica-8.pdf" },
+{ id: 9, parcial: 1, tipo: "tarea", titulo: "Actividad de Base de Datos", archivo: "actividades/practica-9.pdf" },
+{ id: 10, parcial: 1, tipo: "tarea", titulo: "Auditoría de Base de Datos", archivo: "actividades/auditoria-johnny-rivas.pdf" },
+{ id: 11, parcial: 1, tipo: "tarea", titulo: "Proyecto de Integración con Dashboard", archivo: "actividades/bd-6s3121-sustenatar-proyecto-de-bd-integracion-con-dashboard-virtual-utp.pdf" },
+{ id: 12, parcial: 1, tipo: "tarea", titulo: "Proyecto SmartLit SmartHome", archivo: "actividades/smartlit-smarthome.pdf" },
+{ id: 13, parcial: 1, tipo: "tarea", titulo: "Inyección SQL", archivo: "actividades/practica-9-inyeccion-sql.pdf" },
+
+{ id: 14, parcial: 1, tipo: "quiz", titulo: "Quiz - Auditoría en Base de Datos", archivo: "Quizz/bd-6s3121-auditoria-en-base-de-datos-virtual-utp.pdf" },
+{ id: 15, parcial: 1, tipo: "quiz", titulo: "Quiz - Fundamentos de Bases de Datos", archivo: "Quizz/bd-6s3121-fundamentos-de-bases-de-datos-virtual-utp.pdf" },
+{ id: 16, parcial: 1, tipo: "quiz", titulo: "Quiz N° Real", archivo: "Quizz/bd-6s3121-quiz-n-virtual-utp.pdf" },
+
+{ id: 17, parcial: 1, tipo: "parcial", titulo: "Examen Parcial N°1", archivo: "Parciales/bd-6s3121-parcial-1-virtual-utp.pdf" },
+{ id: 18, parcial: 1, tipo: "parcial", titulo: "Examen Parcial N°2", archivo: "Parciales/bd-6s3121-parcial-2-virtual-utp.pdf" }
+];
+
+</script>
+<script>
+/* ==========================================================
+   script.js
+   --------------------------------------------------------
+   - Navegación SPA con scroll suave + resaltado de sección activa
+   - Menú responsivo (hamburguesa)
+   - Barra de progreso de scroll
+   - Renderizado dinámico de "Contenido" (acordeón) y
+     "Actividades" (galería) a partir de data.js,
+     simulando una consulta asíncrona a una base de datos.
+   ========================================================== */
+
+document.addEventListener("DOMContentLoaded", () => {
+  initNavbar();
+  initScrollProgress();
+  initScrollSpy();
+  initFooterYear();
+
+  // Simulamos la latencia de una consulta real a una BD/API
+  fakeFetchUnidades().then(renderAccordion);
+  fakeFetchActividades().then((data) => {
+    renderActivities(data);
+    initFilters(data);
+  });
+});
+
+/* ---------------------------------------------------------
+   NAVBAR: menú hamburguesa en móvil
+--------------------------------------------------------- */
+function initNavbar() {
+  const toggle = document.getElementById("navToggle");
+  const links = document.getElementById("navLinks");
+
+  toggle.addEventListener("click", () => {
+    const isOpen = links.classList.toggle("open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
+  });
+
+  // Cierra el menú al elegir una sección (mejor UX en móvil)
+  links.querySelectorAll(".nav-link").forEach((link) => {
+    link.addEventListener("click", () => {
+      links.classList.remove("open");
+      toggle.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
+/* ---------------------------------------------------------
+   BARRA DE PROGRESO DE SCROLL
+--------------------------------------------------------- */
+function initScrollProgress() {
+  const bar = document.getElementById("scrollProgress");
+  window.addEventListener("scroll", () => {
+    const scrollTop = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    bar.style.width = progress + "%";
+  });
+}
+
+/* ---------------------------------------------------------
+   SCROLLSPY: resalta el enlace de la sección visible
+--------------------------------------------------------- */
+function initScrollSpy() {
+  const sections = document.querySelectorAll(".section");
+  const navLinks = document.querySelectorAll(".nav-link");
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const id = entry.target.getAttribute("id");
+          navLinks.forEach((link) => {
+            link.classList.toggle("active", link.dataset.section === id);
+          });
+        }
+      });
+    },
+    { rootMargin: "-45% 0px -50% 0px", threshold: 0 }
+  );
+
+  sections.forEach((section) => observer.observe(section));
+}
+
+/* ---------------------------------------------------------
+   AÑO DINÁMICO EN EL FOOTER
+--------------------------------------------------------- */
+function initFooterYear() {
+  document.getElementById("year").textContent = new Date().getFullYear();
+}
+
+/* ---------------------------------------------------------
+   SIMULACIÓN DE CONSULTAS ASÍNCRONAS A UNA BASE DE DATOS
+   (en un caso real, esto sería fetch('/api/unidades') etc.)
+--------------------------------------------------------- */
+function fakeFetchUnidades() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(UNIDADES_DB), 500);
+  });
+}
+
+function fakeFetchActividades() {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(ACTIVIDADES_DB), 650);
+  });
+}
+
+/* ---------------------------------------------------------
+   RENDER: Acordeón de unidades (sección Contenido)
+--------------------------------------------------------- */
+function renderAccordion(unidades) {
+  const container = document.getElementById("accordion");
+  container.innerHTML = "";
+
+  unidades.forEach((unidad) => {
+    const item = document.createElement("div");
+    item.className = "accordion-item";
+    item.innerHTML = `
+      <button class="accordion-header" aria-expanded="false">
+        <span class="accordion-unit-num">${unidad.semana}</span>
+        <span class="accordion-header-text">
+          <h3>${unidad.titulo}</h3>
+        </span>
+        <span class="accordion-icon">+</span>
+      </button>
+      <div class="accordion-panel">
+        <div class="accordion-panel-inner">
+          <p>${unidad.descripcion}</p>
+          <a class="material-btn" href="${unidad.material}" target="_blank" rel="noopener">
+            ⬇ Descargar material teórico
+          </a>
+        </div>
+      </div>
+    `;
+    container.appendChild(item);
+
+    const header = item.querySelector(".accordion-header");
+    const panel = item.querySelector(".accordion-panel");
+
+    header.addEventListener("click", () => {
+      const isOpen = item.classList.contains("open");
+
+      // Cierra los demás (acordeón exclusivo)
+      container.querySelectorAll(".accordion-item.open").forEach((openItem) => {
+        if (openItem !== item) {
+          openItem.classList.remove("open");
+          openItem.querySelector(".accordion-panel").style.maxHeight = null;
+          openItem.querySelector(".accordion-header").setAttribute("aria-expanded", "false");
+        }
+      });
+
+      item.classList.toggle("open", !isOpen);
+      header.setAttribute("aria-expanded", String(!isOpen));
+      panel.style.maxHeight = !isOpen ? panel.scrollHeight + "px" : null;
+    });
+  });
+}
+
+/* ---------------------------------------------------------
+   RENDER: Galería de actividades (sección Actividades)
+--------------------------------------------------------- */
+const TIPO_LABELS = {
+  tarea: "Tareas",
+  quiz: "Quiz",
+  parcial: "Parciales"
+};
+
+function renderActivities(actividades) {
+  const p1 = actividades.filter((a) => a.parcial === 1);
+  const p2 = actividades.filter((a) => a.parcial === 2);
+  renderActivityGrid("activityGridP1", p1);
+  renderActivityGrid("activityGridP2", p2);
+}
+
+function renderActivityGrid(gridId, actividades) {
+  const grid = document.getElementById(gridId);
+  grid.innerHTML = "";
+
+  if (actividades.length === 0) {
+    grid.innerHTML = `<p class="loading-msg">No hay actividades para este filtro.</p>`;
+    return;
+  }
+
+  actividades.forEach((act) => {
+    const card = document.createElement("article");
+    card.className = "activity-card";
+    card.dataset.tipo = act.tipo;
+
+    const extension = act.archivo.split(".").pop().toUpperCase();
+
+    card.innerHTML = `
+      <div class="activity-top">
+        <span class="activity-tag">${TIPO_LABELS[act.tipo] || act.tipo}</span>
+      </div>
+      <h3>${act.titulo}</h3>
+      <a class="activity-link" href="${act.archivo}" target="_blank" rel="noopener">
+        Ver / descargar (.${extension.toLowerCase()})
+      </a>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------------------------------------------------
+   FILTROS de actividades por tipo (aplica a ambos parciales)
+--------------------------------------------------------- */
+function initFilters(actividades) {
+  const filtersContainer = document.getElementById("filters");
+  const tipos = ["todos", ...new Set(actividades.map((a) => a.tipo))];
+
+  filtersContainer.innerHTML = tipos
+    .map(
+      (tipo, i) => `
+      <button class="filter-btn ${i === 0 ? "active" : ""}" data-tipo="${tipo}">
+        ${tipo === "todos" ? "Todos" : TIPO_LABELS[tipo] || tipo}
+      </button>`
+    )
+    .join("");
+
+  filtersContainer.querySelectorAll(".filter-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      filtersContainer
+        .querySelectorAll(".filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+
+      const tipo = btn.dataset.tipo;
+      const filtradas =
+        tipo === "todos" ? actividades : actividades.filter((a) => a.tipo === tipo);
+      renderActivities(filtradas);
+    });
+  });
+}
+
+</script>
+</body>
+</html>
